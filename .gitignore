@@ -4,3 +4,6 @@ fma/dump-fmd-ckpt/dump-fmd-ckpt
 fma/fmdev/fmdev
 fma/gen-diagcode/gen-diagcode
 fma/topo-indicator/topo-indicator
+ipmi/chassis-ident/chassis-ident
+ipmi/dump-sp-info/32/
+ipmi/dump-sp-info/64/
