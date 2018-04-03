@@ -1,0 +1,6 @@
+*.o
+*.swp
+fma/dump-fmd-ckpt/dump-fmd-ckpt
+fma/fmdev/fmdev
+fma/gen-diagcode/gen-diagcode
+fma/topo-indicator/topo-indicator
