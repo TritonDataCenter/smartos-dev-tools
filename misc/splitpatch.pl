@@ -50,7 +50,7 @@ $| = 1;
 select(STDOUT);
 $| = 1;
 
-my $prog = $0;
+$prog = $0;
 my $patchfile = $ARGV[0];
 my $outdir = $ARGV[1];
 my $status = 1;
