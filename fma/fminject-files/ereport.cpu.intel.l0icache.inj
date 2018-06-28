@@ -1,0 +1,80 @@
+/*
+ * Copyright (c) 2018, Joyent, Inc.
+ */
+authdef hc_auth {
+	string product-id;
+	string server-id;
+	string chassis-id;
+	string serial;
+};
+
+authdef hclist {
+	string hc-name;
+	uint8_t	hc-id;
+};
+
+fmridef hc_det {
+	uint8_t version;
+	string scheme;
+	auth hc_auth authority;
+	auth hclist hc_list[];
+};
+
+evdef ereport.cpu.intel.l0icache {
+	fmri hc_det detector;
+	string compound_errorname;
+	uint64_t IA32_MCG_STATUS;
+	boolean machine_check_in_progress;
+	uint8_t bank_number;
+	uint64_t bank_msr_offset;
+	uint64_t IA32_MCi_STATUS;
+	boolean overflow;
+	boolean error_uncorrected;
+	boolean error_enabled;
+	boolean processor_context_corrupt;
+	uint16_t error_code;
+	uint16_t model_specific_error_code;
+	string threshold_based_error_status;
+	uint64_t IA32_MCi_ADDR;
+};
+
+/*
+ * You must replace the following fields witj values from the system on which
+ * you want to inject this ereport:
+ *
+ * PRODUCT_ID
+ * HOSTNAME
+ * CHASSIS_SN
+ * CHIP_SN
+ *
+ * These values can be gleened from the output of fmtopo - e.g.:
+ *
+ * # /usr/lib/fm/fmd/fmtopo -V "*chip=0"
+ */
+fmri hc_det mydet = {
+	0,
+	"hc",
+	{ "PRODUCT_ID", "HOSTNAME", "CHASSIS_SN", "CHIP_SN" },
+	[ {"motherboard", 0}, {"chip", 0}, {"core", 0}, {"strand", 0} ]
+};
+
+event ereport.cpu.intel.l0icache ev1 = {
+	mydet,
+	"ICACHELO_IRD_ERR",
+	0x0,
+	false,
+	0x2,
+	0x408,
+	0xd40006c000040150,
+	true,
+	false,
+	true,
+	false,
+	0x150,
+	0x4,
+	"No tracking",
+	0x1fffffb80aaa0
+};
+
+ev1;
+

@@ -53,3 +53,7 @@ topo-indicator
 This CLI can be used to get or set the state of any chassis indicator that
 is exposed via libtopo.
 
+fminject-files
+--------------
+This contains template of input files for the fminject utility, which
+can be used to inject FM events.

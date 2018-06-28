@@ -1,0 +1,52 @@
+/*
+ * Copyright (c) 2018, Joyent, Inc.
+ */
+fmridef zfs_det {
+	uint8_t version;
+	string scheme;
+	uint64_t pool;
+	uint64_t vdev;
+};
+
+evdef ereport.fs.zfs.checksum {
+	fmri zfs_det detector;
+	string pool;
+	uint64_t pool_guid;
+	int32_t pool_context;
+	string pool_failmode;
+	uint64_t vdev_guid;
+	string vdev_type;
+	uint64_t parent_guid;
+};
+
+/*
+ * Replace the following with actual values for the vdev you want to inject
+ * errors on:
+ * - POOL_NAME
+ * - POOL_GUID
+ * - VDEV_GUID
+ * - PARENT_GUID
+ *
+ * You can look up these values using zdb - for example:
+ *
+ * # zdb -C <pool_name>
+ */
+fmri zfs_det mydet = {
+	0,
+	"zfs",
+	POOL_GUID,
+	VDEV_GUID
+};
+
+event ereport.fs.zfs.checksum ev1 = {
+	mydet,
+	"POOL_NAME",
+	POOL_GUID,
+	0,
+	"wait",
+	VDEV_GUID,
+	"disk",
+	PARENT_GUID
+};
+
+ev1;
