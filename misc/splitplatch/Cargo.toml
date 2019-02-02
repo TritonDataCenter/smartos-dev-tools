@@ -1,0 +1,11 @@
+[package]
+name = "splitpatch"
+version = "0.1.1"
+authors = ["Rob Johnston <rob.johnston@joyent.com>"]
+edition = "2018"
+description = "This CLI takes a git mbox formatted patch and breaks it into multiple patches (one per file being patched)"
+license = "MIT"
+
+[dependencies]
+getopts = "0.2"
+regex = "1"
