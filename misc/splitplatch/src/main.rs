@@ -13,7 +13,7 @@ use std::process;
 
 extern crate splitpatch;
 
-fn usage(progname: &str, opts: Options) {
+fn usage(progname: &str, opts: &Options) {
     let msg = format!("Usage: {} -p <PATCHFILE> -o <OUTPUT_DIR>", progname);
     print!("{}", opts.usage(&msg));
 } 
@@ -37,14 +37,14 @@ fn main() {
     };
 
     if matches.opt_present("h") {
-        usage(&progname, opts);
+        usage(&progname, &opts);
         return;
     }
     
     let patch_file = match matches.opt_str("p") {
         Some(p) => { p }
         None => {
-            usage(&progname, opts);
+            usage(&progname, &opts);
             process::exit(2);
         }
     };
@@ -52,7 +52,7 @@ fn main() {
     let out_dir = match matches.opt_str("o") {
         Some(o) => { o }
         None => {
-            usage(&progname, opts);
+            usage(&progname, &opts);
             process::exit(2);
         }
     };

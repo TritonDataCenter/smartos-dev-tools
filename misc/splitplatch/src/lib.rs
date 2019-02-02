@@ -27,7 +27,7 @@ impl Config {
     }
 }
 
-fn dump_patch(patch: &Vec<String>, target: &String, outdir: &String)
+fn dump_patch(patch: &[String], target: &str, outdir: &str)
     -> std::io::Result<()> {
 
     let filenm = format!("{}/{}", outdir, target.replace("/", "_"));
@@ -36,6 +36,7 @@ fn dump_patch(patch: &Vec<String>, target: &String, outdir: &String)
     println!("dumping patch for {} to {}", target, filenm);
     for line in patch {
         outfile.write_all(line.as_bytes())?;
+        outfile.write_fmt(format_args!("\n"))?;
     }
     Ok(())
 }
@@ -51,8 +52,6 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let file = File::open(config.patch_file)?;
     let reader = BufReader::new(file);
     
-    // regex matching the start of a file diff
-    let patch_start_re = Regex::new(r"^diff ")?;
     // regex extracting the patch target filename
     let patch_filenm_re = Regex::new(r"(\S+)$")?;
 
@@ -68,7 +67,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
             }
         };
  
-        if patch_start_re.is_match(&line) {
+        if line.starts_with("diff ") {
             if first_patch_started {
                 assert!(patch.len() > 1, "malformed patch!");
                 dump_patch(&patch, &patch_filenm, &config.out_dir)?;
