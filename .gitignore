@@ -2,8 +2,13 @@
 *.swp
 fma/dump-fmd-ckpt/dump-fmd-ckpt
 fma/fmdev/fmdev
+fma/ufmdev/ufmdev
 fma/gen-diagcode/gen-diagcode
 fma/topo-indicator/topo-indicator
 ipmi/chassis-ident/chassis-ident
+ipmi/dump-sdr/32/
+ipmi/dump-sdr/64/
 ipmi/dump-sp-info/32/
 ipmi/dump-sp-info/64/
+ipmi/read-sensor/32/
+ipmi/read-sensor/64/

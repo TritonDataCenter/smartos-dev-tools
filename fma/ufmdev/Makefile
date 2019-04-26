@@ -3,9 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
-# Copyright (c) 2018, Joyent, Inc.
+# Copyright (c) 2019, Joyent, Inc.
 #
-PROG=		fmdev	
+PROG=		ufmdev	
 CC=		/opt/local/bin/cc
 CTFCONVERT=	/opt/onbld/bin/i386/ctfconvert
 CTFMERGE=	/opt/onbld/bin/i386/ctfmerge
@@ -18,7 +18,7 @@ PROTO=		/
 LDFLAGS=	-L$(PROTO)/usr/lib -lnvpair
 CFLAGS=		-I$(PROTO)/usr/include -g -std=gnu99
 
-SRCS=	fmdev.c
+SRCS=	ufmdev.c
 OBJS=	$(SRCS:%.c=%.o)	
 
 .c.o:
