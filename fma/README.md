@@ -20,15 +20,6 @@ Currently it supports calling the following ioctls:
 - FM_IOC_PHYSCPU_INFO
 - FM_IOC_GENTOPO_LEGACY
 
-
-ufmdev
-------
-This is a utility for testing/exercising the ioctl's implemented by the "ufm" pseudo-driver.
-Currently it supports calling the following ioctls:
-- UFM_IOC_GETCAPS
-- UFM_IOC_REPORTSZ
-- UFM_IOC_REPORT
-
 gen-diagcode
 ------------
 This utility takes an FM dictionary name and an event class and computes the

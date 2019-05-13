@@ -1,8 +1,8 @@
 *.o
 *.swp
+ddi/ufmdev/*/ufmdev
 fma/dump-fmd-ckpt/dump-fmd-ckpt
 fma/fmdev/fmdev
-fma/ufmdev/ufmdev
 fma/gen-diagcode/gen-diagcode
 fma/topo-indicator/topo-indicator
 ipmi/chassis-ident/chassis-ident
