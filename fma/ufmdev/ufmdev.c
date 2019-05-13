@@ -16,8 +16,6 @@
 #include <sys/ddi_ufm.h>
 #include <sys/types.h>
 
-#define	UFMDEV	"/dev/ufm"
-
 static const char *pname;
 static const char optstr[] = "d:i:";
 
@@ -148,8 +146,8 @@ main(int argc, char **argv)
 		return (2);
 	}
 
-	if ((fd = open(UFMDEV, O_RDWR)) < 0) {
-		(void) fprintf(stderr, "failed to open %s (%s)\n", UFMDEV,
+	if ((fd = open(DDI_UFM_DEV, O_RDONLY)) < 0) {
+		(void) fprintf(stderr, "failed to open %s (%s)\n", DDI_UFM_DEV,
 		    strerror(errno));
 		return (1);
 	}
