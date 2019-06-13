@@ -3,9 +3,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 #
-# Copyright (c) 2019, Joyent, Inc.
+# Copyright 2019 Joyent, Inc.
 #
-PROG=		ufmdev
+PROG=		ufm-ioctl
 CC=		$(shell which gcc)
 ARCH=		$(shell uname -p)
 CTFTOOLS=	/opt/onbld/bin/$(ARCH)
@@ -15,7 +15,7 @@ CTFMERGE=	$(CTFTOOLS)/ctfmerge
 PROTO=		/
 CFLAGS=		-g -std=gnu99 -I$(PROTO)/usr/include
 
-SRCS= ufmdev.c
+SRCS= ufm-ioctl.c
 
 OBJS = $(SRCS:%.c=%.o)
 

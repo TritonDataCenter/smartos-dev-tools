@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  *
- * Copyright (c) 2019, Joyent, Inc.
+ * Copyright 2019 Joyent, Inc.
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <sys/ddi_ufm.h>
 #include <sys/types.h>
+
+#define	EXIT_USAGE	2
 
 static const char *pname;
 static const char optstr[] = "d:i:";
@@ -123,7 +125,7 @@ main(int argc, char **argv)
 				break;
 			default:
 				usage();
-				return (2);
+				return (EXIT_USAGE);
 			}
 		}
 	}
@@ -131,7 +133,7 @@ main(int argc, char **argv)
 	if (ioc == NULL || devpath == NULL) {
 		(void) fprintf(stderr, "-d/-i options are required\n");
 		usage();
-		return (2);
+		return (EXIT_USAGE);
 	}
 
 	if (strcasecmp(ioc, "getcaps") == 0) {
@@ -143,13 +145,13 @@ main(int argc, char **argv)
 	} else {
 		(void) fprintf(stderr, "invalid ioctl name\n");
 		usage();
-		return (2);
+		return (EXIT_USAGE);
 	}
 
 	if ((fd = open(DDI_UFM_DEV, O_RDONLY)) < 0) {
 		(void) fprintf(stderr, "failed to open %s (%s)\n", DDI_UFM_DEV,
 		    strerror(errno));
-		return (1);
+		return (EXIT_FAILURE);
 	}
 
 	switch (cmd) {
@@ -169,5 +171,5 @@ main(int argc, char **argv)
 out:
 	(void) close(fd);
 
-	return ((ret < 0) ? 0 : 1);
+	return ((ret < 0) ? EXIT_SUCCESS : EXIT_FAILURE);
 }

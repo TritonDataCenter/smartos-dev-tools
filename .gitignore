@@ -1,6 +1,6 @@
 *.o
 *.swp
-ddi/ufmdev/*/ufmdev
+ddi/ufm-ioctl/*/ufm-ioctl
 fma/dump-fmd-ckpt/dump-fmd-ckpt
 fma/fmdev/fmdev
 fma/gen-diagcode/gen-diagcode
