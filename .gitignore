@@ -1,5 +1,6 @@
 *.o
 *.swp
+Cargo.lock
 ddi/ufm-ioctl/*/ufm-ioctl
 fma/dump-fmd-ckpt/dump-fmd-ckpt
 fma/fmdev/fmdev
@@ -12,3 +13,4 @@ ipmi/dump-sp-info/32/
 ipmi/dump-sp-info/64/
 ipmi/read-sensor/32/
 ipmi/read-sensor/64/
+misc/splitplatch/target/
