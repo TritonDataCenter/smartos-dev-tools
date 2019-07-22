@@ -3,9 +3,7 @@ topo-indicator
 This CLI can be used to get or set the state of any chassis indicator that
 is exposed via libtopo.
 
-```
-./topo-indicator [-R root] -m <get|on|off> -t <locate|service|ok2rm> <FMRI>
-```
+## Usage
 
 ```
 # topo-indicator -m <on|off|get> -t <locate|service|ok2rm> <FMRI glob pattern>
