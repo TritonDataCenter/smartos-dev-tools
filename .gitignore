@@ -13,4 +13,5 @@ ipmi/dump-sp-info/32/
 ipmi/dump-sp-info/64/
 ipmi/read-sensor/32/
 ipmi/read-sensor/64/
+misc/mptsas-ioctl/*/mptsas-ioctl
 misc/splitplatch/target/
