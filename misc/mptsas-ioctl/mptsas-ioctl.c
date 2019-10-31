@@ -15,28 +15,9 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+#include "mptsas_ioctl.h"
+
 #define	EXIT_USAGE	2
-
-#define	MPTIOCTL			('I' << 8)
-#define	MPTIOCTL_GET_ADAPTER_DATA	(MPTIOCTL | 1)
-#define	MPTIOCTL_UPDATE_FLASH		(MPTIOCTL | 2)
-#define	MPTIOCTL_RESET_ADAPTER		(MPTIOCTL | 3)
-#define	MPTIOCTL_PASS_THRU		(MPTIOCTL | 4)
-#define	MPTIOCTL_EVENT_QUERY		(MPTIOCTL | 5)
-#define	MPTIOCTL_EVENT_ENABLE		(MPTIOCTL | 6)
-#define	MPTIOCTL_EVENT_REPORT		(MPTIOCTL | 7)
-#define	MPTIOCTL_GET_PCI_INFO		(MPTIOCTL | 8)
-#define	MPTIOCTL_DIAG_ACTION		(MPTIOCTL | 9)
-#define	MPTIOCTL_REG_ACCESS		(MPTIOCTL | 10)
-#define	MPTIOCTL_GET_DISK_INFO		(MPTIOCTL | 11)
-#define	MPTIOCTL_LED_CONTROL		(MPTIOCTL | 12)
-#define	MPTIOCTL_GET_CONNECTOR_INFO	(MPTIOCTL | 13)
-
-typedef struct mptsas_get_connector_info
-{
-	size_t			mci_bufsz;
-	caddr_t			mci_buf;
-} mptsas_get_connector_info_t;
 
 static const char *pname;
 static const char optstr[] = "d:i:";
@@ -44,13 +25,13 @@ static const char optstr[] = "d:i:";
 static void
 usage()
 {
-	(void) fprintf(stderr, "usage: %s -d <devpath> -i <ioctl>\n\n"
+	(void) fprintf(stderr, "usage: %s -d <devctl devpath> -i <ioctl>\n\n"
 	    "where \'ioctl\' can be:\n"
-	    "getconninfo\n\n", pname);
+	    "getadapterdata\ngetdiskinfo\ngetpciinfo\ngetconninfo\n\n", pname);
 }
 
 static int
-do_getconninfo(int fd, char *devpath)
+do_getconninfo(int fd)
 {
 	mptsas_get_connector_info_t ioc = { 0 };
 	nvlist_t *nvl = NULL;
@@ -69,6 +50,7 @@ do_getconninfo(int fd, char *devpath)
 	if (ioctl(fd, MPTIOCTL_GET_CONNECTOR_INFO, &ioc) < 0) {
 		(void) fprintf(stderr, "MPTIOCTL_GET_CONNECTOR_INFO ioctl "
 		    "failed (%s)\n", strerror(errno));
+		free(ioc.mci_buf);
 		return (-1);
 	}
 
@@ -81,6 +63,102 @@ do_getconninfo(int fd, char *devpath)
 	free(ioc.mci_buf);
 
 	nvlist_print(stdout, nvl);
+
+	return (0);
+}
+
+static int
+do_getdiskinfo(int fd)
+{
+	mptsas_get_disk_info_t ioc = { 0 };
+
+	if (ioctl(fd, MPTIOCTL_GET_DISK_INFO, &ioc) < 0) {
+		(void) fprintf(stderr, "MPTIOCTL_GET_DISK_INFO ioctl "
+		    "failed (%s)\n", strerror(errno));
+		return (-1);
+	}
+	(void) printf("Number of disks: %u\n", ioc.DiskCount);
+
+	ioc.DiskInfoArraySize = ioc.DiskCount * sizeof (mptsas_disk_info_t);
+	if ((ioc.PtrDiskInfoArray = malloc(ioc.DiskInfoArraySize)) == NULL)
+		return (-1);
+
+	if (ioctl(fd, MPTIOCTL_GET_DISK_INFO, &ioc) < 0) {
+		(void) fprintf(stderr, "MPTIOCTL_DISK_INFO ioctl "
+		    "failed (%s)\n", strerror(errno));
+		free(ioc.PtrDiskInfoArray);
+		return (-1);
+	}
+
+	for (uint_t i = 0; i < ioc.DiskCount; i++) {
+		(void) printf("SAS Address: %" PRIx64 "\n",
+		    ioc.PtrDiskInfoArray[i].SasAddress);
+		(void) printf("Instance: %u\n",
+		    ioc.PtrDiskInfoArray[i].Instance);
+		(void) printf("Enclosure: %u\n",
+		    ioc.PtrDiskInfoArray[i].Enclosure);
+		(void) printf("Slot: %u\n\n", ioc.PtrDiskInfoArray[i].Slot);
+	}
+
+	free(ioc.PtrDiskInfoArray);
+
+	return (0);
+}
+
+static int
+do_getadapter(int fd)
+{
+	mptsas_adapter_data_t ioc = { 0 };
+	char *type4 = "SAS-2", *type6 = "SAS-3", *typeX = "Unknown", *type;
+	char driver_ver[33];
+
+	if (ioctl(fd, MPTIOCTL_GET_ADAPTER_DATA, &ioc) < 0) {
+		(void) fprintf(stderr, "MPTIOCTL_GET_ADAPTER_DATA ioctl "
+		    "failed (%s)\n", strerror(errno));
+		return (-1);
+	}
+
+	switch (ioc.AdapterType) {
+	case 4:
+		type = type4;
+		break;
+	case 6:
+		type = type6;
+		break;
+	default:
+		type = typeX;
+		break;
+	}
+	(void) printf("Adapter Type: %u (%s)\n", ioc.AdapterType, type);
+	(void) printf("PCI Function: %u\n", ioc.MpiPortNumber);
+	(void) printf("PCI Device: %u\n", ioc.PCIDeviceHwId);
+	(void) printf("Subsystem ID: 0x%x\n", ioc.SubSystemId);
+	(void) printf("Subsystem Vendor ID: 0x%x\n", ioc.SubsystemVendorId);
+	(void) printf("MPI Firmare Version: %u\n", ioc.MpiFirmwareVersion);
+	(void) printf("BIOS Version: %u\n", ioc.BiosVersion);
+	(void) strcpy(driver_ver, ioc.DriverVersion);
+	driver_ver[32] = '\0';
+	(void) printf("Driver Version: %s\n", driver_ver);
+	(void) printf("SCSI ID: %u\n", ioc.ScsiId);
+
+	return (0);
+}
+
+static int
+do_getpciinfo(int fd)
+{
+	mptsas_pci_info_t ioc = { 0 };
+
+	if (ioctl(fd, MPTIOCTL_GET_PCI_INFO, &ioc) < 0) {
+		(void) fprintf(stderr, "MPTIOCTL_GET_ADAPTER_DATA ioctl "
+		    "failed (%s)\n", strerror(errno));
+		return (-1);
+	}
+
+	(void) printf("PCI Bus: %x\n", ioc.BusNumber);
+	(void) printf("PCI Device: %x\n", ioc.DeviceNumber);
+	(void) printf("PCI Function: %x\n", ioc.FunctionNumber);
+	(void) printf("Interrupt Vector: %u\n", ioc.InterruptVector);
 
 	return (0);
 }
@@ -116,6 +194,12 @@ main(int argc, char **argv)
 
 	if (strcasecmp(ioc, "getconninfo") == 0) {
 		cmd = MPTIOCTL_GET_CONNECTOR_INFO;
+	} else if (strcasecmp(ioc, "getadapterdata") == 0) {
+		cmd = MPTIOCTL_GET_ADAPTER_DATA;
+	} else if (strcasecmp(ioc, "getdiskinfo") == 0) {
+		cmd = MPTIOCTL_GET_DISK_INFO;
+	} else if (strcasecmp(ioc, "getpciinfo") == 0) {
+		cmd = MPTIOCTL_GET_PCI_INFO;
 	} else {
 		(void) fprintf(stderr, "invalid ioctl name\n");
 		usage();
@@ -130,7 +214,16 @@ main(int argc, char **argv)
 
 	switch (cmd) {
 	case MPTIOCTL_GET_CONNECTOR_INFO:
-		ret = do_getconninfo(fd, devpath);
+		ret = do_getconninfo(fd);
+		break;
+	case MPTIOCTL_GET_ADAPTER_DATA:
+		ret = do_getadapter(fd);
+		break;
+	case MPTIOCTL_GET_DISK_INFO:
+		ret = do_getdiskinfo(fd);
+		break;
+	case MPTIOCTL_GET_PCI_INFO:
+		ret = do_getpciinfo(fd);
 		break;
 	default:
 		break;
