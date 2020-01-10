@@ -13,6 +13,8 @@ readonly proto_files=(
     "lib/svc/manifest/system/fmd.xml"
     "usr/include/fm/"
     "usr/lib/libipmi.so.1"
+    "usr/lib/libsmbios.so.1"
+    "usr/lib/64/libsmbios.so.1"
     "usr/lib/64/libipmi.so.1"
     "usr/lib/fm"
     "usr/lib/locale/C/LC_MESSAGES/AMD.mo"
